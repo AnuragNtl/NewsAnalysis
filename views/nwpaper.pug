@@ -1,0 +1,21 @@
+html
+ head
+  title NewsPaper
+  include hdr.pug
+ body
+  include nav
+  include showdates
+  div#filter
+   include newsfilter
+  div#tags
+   include tags
+  div#nsection(style="clear:both;")
+   ul
+    each val, i in hlines
+     li.category
+      a.k(href=i)=i
+      each val1 in val
+       ul
+        li
+         a(href=val1[1])= val1[0]+"("+val1[2]+')'
+  include ftr.pug

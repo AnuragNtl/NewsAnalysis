@@ -1,0 +1,3 @@
+div#dates
+ each val in dates
+  a(href="/?srch="+srch+"&p="+i1+"&date="+val["p"].getFullYear()+"/"+(val["p"].getMonth()+1)+"/"+val["p"].getDate())= ((val["p"].getMonth())+1)+"/"+val["p"].getDate()+"/"+val["p"].getFullYear()

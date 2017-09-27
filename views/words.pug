@@ -1,0 +1,14 @@
+include hdr
+body
+ h1(align="CENTER")= word
+ div#wrdFrm
+  form(name="wFrm" action="/manage_word" method="POST")
+   input(type="text" name="t1" value=word)
+   br
+   input(type="radio" name="rd1" value="r1")
+   ="Add in Common Word List"
+   br
+   input(type="radio" name="rd1" value="r2")
+   ="Remove from Common Word List"
+   br
+   input(type="submit" value="Submit")
