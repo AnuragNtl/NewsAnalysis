@@ -3,6 +3,9 @@ var express=require("express");
 var bodyParser=require("body-parser");
 var cookieParser=require("cookie-parser");
 var session=require("express-session");
+var childProcess=require("child_process");
+var stream=require("stream");
+var fs=require("fs");
 //var mongoDb=require("mongodb");
 var db=require("./NewsDB.js");
 var app=express();
@@ -73,6 +76,29 @@ else
 	res.send("Error in Removing Common Word");
 });
 });
+app.get("/addTarget",function(req,res)
+{
+res.render("addTarget");
+});
+
+app.post("/addTarget",function(req,res)
+{
+var url=req.body.url,re=req.body.re,k=req.body.k;
+var id=req.sessionID;
+fs.writeFileSync(id,k);
+execTestScript(url,re,id,function(data)
+	{
+		if(data==null)
+			res.send("Error in Parsing Output");
+		else if(data.error)
+			res.send(data.message);
+		else
+		{
+			res.render("listtestwords",data);
+		}
+	});
+});
+
 db.connect(function(err)
 {
 if(err)
@@ -119,4 +145,26 @@ cursor.each(function(err,doc)
 function dateFormat(dt)
 {
 return ((parseInt(dt.getMonth())+1)+"/"+dt.getDate()+"/"+dt.getFullYear());
+}
+function execTestScript(url,re,kFile,onExec)
+{
+console.log("Exec ");
+var child=childProcess.exec("groovy MatchList.groovy "+url+" "+"'"+re+"' < "+kFile,
+	function(err,stdout,stderr)
+	{
+		var data="";
+	try
+	{
+		console.log(stdout);
+		console.log(stderr);
+data=JSON.parse(stdout);
+}
+catch(e)
+{
+	onExec(null);
+	return;
+}
+onExec(data);
+});
+console.log("E");
 }
