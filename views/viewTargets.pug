@@ -1,0 +1,9 @@
+html
+ head
+  title View Targets
+ body
+  ul
+   each target in targets
+    li
+     a(href="/target?t="+escape(target["url"])+"&type="+target["type"])= target["url"]
+     

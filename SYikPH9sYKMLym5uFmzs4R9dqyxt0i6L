@@ -1,0 +1,6 @@
+{k,hList,urlList->
+		def hLine=k.replace("<span itemprop=\"headline\">","").replace("</span>","");
+		hList.add(hLine);
+		urlList.add("http://localhost:8082/");
+
+}

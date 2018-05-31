@@ -2,12 +2,9 @@ html
  head
   title Add Target
  body
-  form(name="addTarget" method="POST" action="/addTarget")
+  form(name="addTarget" method="POST" action="/addJSONTarget")
    ="URL"
    input(type="text" name="url" value=url)
-   br
-   ="Filter RegEx"
-   input(type="text" name="re" value=re)
    br
    ="Script"
    textarea(name="k")

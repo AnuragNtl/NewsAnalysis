@@ -8,15 +8,14 @@ import com.sun.speech.freetts.VoiceManager;
 import javax.swing.event.*;
 import java.sql.*;
 import groovy.sql.Sql;
-import groovy.util.Eval;
 class SearchNews
 {
 	static def hList=[];
-	static def urlList=[],oUrlList=[];
+	static def urlList=[];
 	static def curURL="";
 	static def nLen=0,bRead=0;
 	private static NewsDump nd=new NewsDump();
-	static def searcherList=[];/*["https://www.inshorts.com/en":["<span itemprop=\"headline\">.*</span>",
+	static def searcherList=["https://www.inshorts.com/en":["<span itemprop=\"headline\">.*</span>",
 	{
 		def hLine=it.replace("<span itemprop=\"headline\">","").replace("</span>","");
 		hList.add(hLine);
@@ -46,64 +45,33 @@ class SearchNews
 		},
 		["/","/page/2","/page/3","/page/4","/page/5"]
 		]
-	];*/
+	];
 	static def stxt;
 public static void main(String[] args)
 {
-	def tag="";
 	System.setProperty("https.protocols","TLSv1,TLSv1.1,TLSv1.2");
 	def wait=30000,showTime=10000;
-	if(args.length==0)
-	return;
-	else if(args.length>0)
-	tag=args[0];
-	if(args.length>1)
-		wait=Integer.parseInt(args[1]);
-		if(args.length>2)
-		showTime=Integer.parseInt(args[2]);
-		searcherList=nd.getBots(tag);
+	if(args.length>0)
+		wait=Integer.parseInt(args[0]);
+		if(args.length>1)
+		showTime=Integer.parseInt(args[1]);
 	new Thread(new Runnable()
 	{
 		public void run()
 		{
-	searcherList["sources"].each
+	searcherList.each
 	{
-	Searcher srchr=new Searcher(new URL(it["url"]));
-	def k=Eval.me("def k="+it["k"]+";\nreturn k;");
-	bRead+=srchr.searchPattern(it["re"])
-	{
-		uText->
-		def lb=hList.size();
-		k.call(uText,hList,urlList);
-		def ub=hList.size();
-		if(ub>lb)
-		oUrlList.add(it["url"]);
-		nLen++;
-	}
-	}
-	searcherList["json_sources"].each
-	{
-		try {
-		def resp=Searcher.fetchJson(new URL(it["url"]));
-		def k=Eval.me("def k="+it["k"]+";\nreturn k;");
-		def lb=hList.size();
-		k.call(resp,hList,urlList);
-		def ub=hList.size();
-		for(def i=lb;i<ub;i++)
+		key,val->
+		val[2].each
 		{
-			oUrlList.add(it["url"]);
-			nLen++;
+	Searcher srchr=new Searcher(new URL(key+it));
+	curURL=key+it;
+	bRead+=srchr.searchPattern(val[0],val[1]);
 		}
-	}
-	catch(Exception e)
-	{
-		println("Cannot fetch from ${it['url']}");
-	}
-		//bRead+=resp.length();
 	}
 		for(def i=0;i<hList.size();i++)
 		{
-	nd.addHeadLine((String)hList.get(i),urlList.get(i),oUrlList.get(i));
+	nd.addHeadLine((String)hList.get(i),urlList.get(i),urlList.get(i));
 	}
 }
 }).start();
@@ -146,7 +114,7 @@ def gc=GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice(
 def w=gc.getWidth(),h=gc.getHeight();
 f.setSize((int)w,(int)(h/10));
 f.setUndecorated(true);
-//f.setBackground(new Color(0,0,0,0));
+f.setBackground(new Color(0,0,0,0));
 f.setFocusableWindowState(false);
 f.setAlwaysOnTop(true);
 ep=new JEditorPane();
@@ -231,9 +199,7 @@ public def searchPattern(pat,eachPattern)
 }
 public static def fetchJson(url)
 {
-	def txt=url.getText();
-	println("Cannot fetch from $url");
-	return new JsonSlurper().parseText(txt);
+	return new JsonSlurper().parseText(url.getText());
 }
 };
 class NewsDump
@@ -247,20 +213,20 @@ public void addHeadLine(hline,url,oUrl)
 			try {
 					dbCon.execute(es,params);
 						String id=getHeadLineId(hline);
-						//	println("Headline Id $id");
+							println("Headline Id $id");
 					def vals=hline.split("[^a-zA-Z]+");
-					//println("Headline $hline");
+					println("Headline $hline");
 					for(s in vals)
 					{
 						def ss=(String)s;
-					//	println(ss);
+						println(ss);
 						if(ss.length()>1)
 						{
 						addWord(ss,id);
-					//	println("Adding word $ss");
+						println("Adding word $ss");
 					}
-					//else
-					//println("Not adding $ss");
+					else
+					println("Not adding $ss");
 					}
 			}
 			catch(Exception e) {
@@ -287,24 +253,8 @@ dbCon.execute(" insert into words"+
 	" select w,? from (select (?) as w) as s where"+
 	" (select count(*) from common_words where word=?)=0;",params);
 }
-public def getBots(tag)
+public def getBots()
 {
-	def srcs=["sources":[],"json_sources":[]];
-	try
-	{
-	dbCon.eachRow("select * from sources where tag=$tag")
-	{
-		srcs["sources"].add(["url":it[0],"re":it[1],"k":it[2],"tag":it[3]]);
-	}
-	dbCon.eachRow("select * from json_sources where tag=$tag")
-	{
-		srcs["json_sources"].add(["url":it[0],"k":it[1],"tag":it[2]]);
-	}
-}
-catch(Throwable t)
-{
-	println t.getMessage();
-}
-	return srcs;
+	
 }
 };

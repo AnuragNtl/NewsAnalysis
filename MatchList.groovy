@@ -5,10 +5,24 @@ import groovy.json.JsonSlurper;
 import groovy.json.JsonOutput;
 static void main(String[] args)throws IOException
 {
-	if(args.length<2)
+	boolean json_source=false;
+	def url,r;
+	if(args[0]=="simple_src")
+	{
+		if(args.length<3)
+		return;
+	url=args[1];
+	r=args[2];
+	}
+	else if(args[0]=="json_src")
+	{
+		if(args.length<2)
+		return;
+		url=args[1];
+		json_source=true;
+	}
+	else
 	return;
-	def url=args[0];
-	def r=args[1];
 	def rd=new BufferedReader(new InputStreamReader(System.in));
 	def n="";
 	def s=rd.readLine();
@@ -28,11 +42,19 @@ static void main(String[] args)throws IOException
 		println(JsonOutput.toJson([error:true,message:msngpexcepn.toString()]));
 		return;
 	}
-	def txt=new URL(args[0]).getText();
+	def txt=new URL(url).getText();
 	def hList=[],urlList=[];
+	if(json_source)
+	{
+		txt=new JsonSlurper().parseText(txt);
+		k.call(txt,hList,urlList);
+	}
+	else
+	{
 	txt.eachMatch(r)
 	{
 		k.call(it,hList,urlList);
+	}
 	}
 	def p=["headline_list":hList,"urlList":urlList];
 	println(JsonOutput.toJson(p));

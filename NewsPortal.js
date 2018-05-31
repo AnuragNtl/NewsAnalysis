@@ -78,15 +78,18 @@ else
 });
 app.get("/addTarget",function(req,res)
 {
-res.render("addTarget");
+res.render("addTarget",{url:"",re:"",k:"{k,hList,urlList->\n}",tag:"daily_news"});
 });
-
-app.post("/addTarget",function(req,res)
+app.get("/addJSONTarget",function(req,res)
 {
-var url=req.body.url,re=req.body.re,k=req.body.k;
+res.render("addJSONTarget",{url:"",k:"{response,hList,urlList->\n}",tag:"daily_news"});
+});
+app.post("/addJSONTarget",function(req,res)
+{
+var url=req.body.url,k=req.body.k,tag=req.body.tag;
 var id=req.sessionID;
 fs.writeFileSync(id,k);
-execTestScript(url,re,id,function(data)
+execTestScript(false,url,null,id,function(data)
 	{
 		if(data==null)
 			res.send("Error in Parsing Output");
@@ -94,11 +97,118 @@ execTestScript(url,re,id,function(data)
 			res.send(data.message);
 		else
 		{
-			res.render("listtestwords",data);
+			data["url"]=url;
+			data["k"]=k;
+			data.tag=tag;
+			res.render("listtestwords1",data);
 		}
+		fs.unlinkSync(id);
 	});
 });
 
+app.post("/addJSONTargetConfirm",function(req,res)
+{
+	var url=req.body.url,k=req.body.k,tag=req.body.tag;
+	db.addJSONTarget(url,k,tag,function(err)
+	{
+		if(err)
+			res.send("Error: "+err);
+		else
+		{
+			res.redirect("/");
+		}
+	})
+});
+
+app.post("/addTarget",function(req,res)
+{
+var url=req.body.url,re=req.body.re,k=req.body.k,tag=req.body.tag;
+var id=req.sessionID;
+fs.writeFileSync(id,k);
+execTestScript(true,url,re,id,function(data)
+	{
+		if(data==null)
+			res.send("Error in Parsing Output");
+		else if(data.error)
+			res.send(data.message);
+		else
+		{
+			data["url"]=url;
+			data.re=re;
+			data["k"]=k;
+			data.tag=tag;
+			res.render("listtestwords",data);
+		}
+		fs.unlinkSync(id);
+	});
+});
+app.post("/add_target_confirm",function(req,res)
+{
+var url=req.body.url,re=req.body.re,k=req.body.k,tag=req.body.tag;
+db.addSource(url,re,k,tag,function(err)
+{
+if(err)
+	res.send("Error "+err);
+else
+	res.redirect("/");
+});
+});
+app.get("/viewCommonWords",function(req,res)
+{
+db.getCommonWordsList(function(err,data)
+{
+if(err)
+	res.send("Error Occurred");
+else
+{
+res.render("commonWords",{words:data});	
+}
+});
+});
+app.get("/viewTargets",function(req,res)
+{
+db.getAllTargets(function(err,data)
+{
+if(err)
+	res.send("Error Occurred");
+else
+db.getAllJSONTargets(function(err,data1)
+{
+	data=data.concat(data1);
+	res.render("viewTargets",{targets:data});
+});
+});
+});
+app.get("/target",(req,res)=>
+{
+var t=req.query.t;
+if(!t)
+{
+	res.redirect("/");
+	return;
+}
+var type=req.query.type;
+if(type=="simple_source")
+{
+db.getTarget(t,function(err,data)
+{
+if(err || !data || !data[0])
+	res.send("Error Occurred");
+else
+	res.render("addTarget",{url:data[0].url,re:data[0].re,k:data[0].k,tag:data[0].tag});
+});
+}
+else
+{
+	db.getJSONTarget(t,function(err,data)
+	{
+		if(err)
+			res.send("Error Occurred");
+		else
+			res.render("addJSONTarget",{url:data[0].url,k:data[0].k,tag:data[0].tag});
+	});
+}
+});
 db.connect(function(err)
 {
 if(err)
@@ -146,10 +256,10 @@ function dateFormat(dt)
 {
 return ((parseInt(dt.getMonth())+1)+"/"+dt.getDate()+"/"+dt.getFullYear());
 }
-function execTestScript(url,re,kFile,onExec)
+function execTestScript(simpleSrc,url,re,kFile,onExec)
 {
 console.log("Exec ");
-var child=childProcess.exec("groovy MatchList.groovy "+url+" "+"'"+re+"' < "+kFile,
+var child=childProcess.exec("groovy MatchList.groovy "+(simpleSrc?"simple_src":"json_src")+" '"+url+"'"+(simpleSrc?" '"+re+"'":"")+" < "+kFile,
 	function(err,stdout,stderr)
 	{
 		var data="";

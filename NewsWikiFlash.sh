@@ -1,2 +1,2 @@
 #!/bin/bash
-groovy NewsWikiFlash.groovy 120000 10000 &
+groovy NewsWikiFlash.groovy daily_news 120000 10000 &

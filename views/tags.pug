@@ -1,3 +1,5 @@
 div
 each tag in tags
-  a.tag(href="/?srch="+tag["word"]+"&date="+date+"&p="+i1)= tag["word"]
+ span.tag
+  a(href="/?srch="+tag["word"]+"&date="+date+"&p="+i1 style="border-right:ridge green;")= tag["word"]
+  a.manageTag(href="/words/"+tag["word"] id=tag["word"] style="background:yellow;")= ">>"

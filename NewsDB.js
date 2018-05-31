@@ -76,4 +76,68 @@ NewsDB.prototype.removeCommonWord=function(word,k)
 {
 this.con.query("delete from common_words where word='"+word+"';",k);
 }
+function escapeForQuery(k)
+{
+	var k1="";
+	for(var i=0;i<k.length;i++)
+	{
+		var e=k.charCodeAt(i);
+		switch(e)
+		{
+			 case  9 : k1+="    "; break;
+            case 10 : k1+="\\n"; break;
+            case 13 : k1+="\\r"; break;
+            case 34 : k1+="\\\""; break;
+            case 39 : k1+="\\'"; break;
+            case 92 : k1+="\\\\";break;
+            default:
+            k1+=String.fromCharCode(e);
+            break;
+		}
+	}
+	return k1;
+}
+NewsDB.prototype.addSource=function(url,re,k,tag,onAdd)
+{
+	k=escapeForQuery(k);
+	re=escapeForQuery(re);
+	console.log(re);
+	url=escapeForQuery(url);
+	console.log("insert into sources(url,re,k,tag) values('"+url+"','"+re+"','"+k+"','"+tag+"') on duplicate key update re='"+re+"',k='"+k+"';");
+	this.con.query("insert into sources(url,re,k,tag) values('"+url+"','"+re+"','"+k+"','"+tag+"') on duplicate key update re='"+re+"',k='"+k+"';"
+		,function(err)
+		{
+			onAdd(err);
+		});
+}
+NewsDB.prototype.removeSource=function(url,onUpdate)
+{
+this.con.query("delete from sources where url='"+url+"';",onUpdate);
+}
+NewsDB.prototype.getAllTargets=function(onFetch)
+{
+	this.con.query("select url,'simple_source' as type from sources",onFetch);
+}
+NewsDB.prototype.getTarget=function(t,onFetch)
+{
+	this.con.query("select * from sources where url='"+t+"';",onFetch);
+}
+NewsDB.prototype.addJSONTarget=function(url,k,tag,onAdd)
+{
+		k=escapeForQuery(k);
+		url=escapeForQuery(url);
+	this.con.query("insert into json_sources(url,k,tag) values('"+url+"','"+k+"','"+tag+"') on duplicate key update k='"+k+"';",onAdd);
+}
+NewsDB.prototype.removeJSONTarget=function(url,onUpdate)
+{
+	this.con.query("delete from json_sources where url='"+url+"';",onUpdate);
+}
+NewsDB.prototype.getAllJSONTargets=function(onFetch)
+{
+	this.con.query("select url,'json_source' as type from json_sources;",onFetch);
+}
+NewsDB.prototype.getJSONTarget=function(url,onFetch)
+{
+	this.con.query("select * from json_sources where url='"+url+"';",onFetch);
+}
 module.exports=new NewsDB("","","","");

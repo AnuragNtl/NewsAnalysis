@@ -1,0 +1,8 @@
+html
+ head
+  title Common Words
+ body
+  ul
+   each e in words
+    li
+     a(href="/words/"+e["word"])= e["word"]

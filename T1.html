@@ -1,0 +1,26 @@
+<html>
+<head>
+	<script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+	<script type="text/javascript">
+	function speak()
+	{
+		responsiveVoice.speak("The quick brown fox jumps over the lazy dog");
+	}
+	var req=new XMLHttpRequest();
+	req.open("GET","http://www.inshorts.com/read/en/",true);
+	req.onreadystatechange=function()
+	{
+		if(req.readyState==0 && req.status==200)
+		{
+			console.log(req.responseText);
+		}
+	};
+	req.send();
+	</script>
+	</head>
+	<body>
+		<!--iframe src="http://www.inshorts.com/read/en/"
+		 style="width:400px;height:400px"></iframe-->
+	<button onclick="speak();">Speak</button>
+	</body>
+</html>

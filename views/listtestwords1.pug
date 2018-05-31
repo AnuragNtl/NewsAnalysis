@@ -16,18 +16,14 @@ html
     td URL
     td= url
    tr
-    td Regex
-    td= re
-   tr
     td Script
     td
      pre= k
    tr
     td Tag
     td= tag
-  form(name="sFrm" method="POST" action="/add_target_confirm")
+  form(name="sFrm" method="POST" action="/addJSONTargetConfirm")
    input(type="hidden" name="url" value=url)
-   input(type="hidden" name="re" value=re)
    input(type="hidden" name="k" value=k)
    input(type="hidden" name="tag" value=tag)
    input(type="submit" value="Submit")
