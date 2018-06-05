@@ -3,10 +3,11 @@ var express=require("express");
 var session=require("express-session");
 var bodyParser=require("body-parser");
 var cookieParser=require("cookie-parser");
+var newsDb=require("./NewsDB.js");
 var app=express();
-var bParser=bodyParser.urlEncoded({extended:true});
+var bParser=bodyParser.urlencoded({extended:true});
 app.use(bParser);
-app.use(bParser.json());
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(session({secret:"NWFServer!@#$%^&*"}));
 app.use("/",express.static("NWFServer"));
@@ -14,5 +15,14 @@ app.set("view engine","pug");
 app.set("views","views");
 app.get("/",function(req,res)
 {
-res.render("showEntryDetails");
+	newsDb.getDetails(function(rs)
+	{
+		if(!rs)
+			res.render("showEntryDetails",{error:true});
+res.render("showEntryDetails",rs);
+});
+});
+app.listen(8084,function()
+{
+console.log("Started");
 });

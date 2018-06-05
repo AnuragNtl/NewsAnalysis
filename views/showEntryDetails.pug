@@ -2,4 +2,14 @@ html
  include hdr
  body
   div#details= details
-  
+   ul
+    li= "Total News "+total_news
+     a(href='/export_news')= " Export"
+    li= "Total Words "+total_words
+     a(href='/export_words')= " Export"
+    li= "Total Common words "+total_common_words
+     a(href='/export_common_words')= " Export"
+    li
+     a(href="/export_all")= " Export All"
+    li
+     a(href="/export_selected")= "Export Selected"

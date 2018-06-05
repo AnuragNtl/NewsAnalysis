@@ -140,4 +140,42 @@ NewsDB.prototype.getJSONTarget=function(url,onFetch)
 {
 	this.con.query("select * from json_sources where url='"+url+"';",onFetch);
 }
+NewsDB.prototype.getDetails=function(onFetch)
+{
+	var that=this;
+	var r={};
+this.con.query("select count(*) as 'total_news' from nwfrec;",function(err,res)
+	{
+		if(err || !res[0])
+		{
+			onFetch(null);
+			return;
+		}
+		r.total_news=res[0]["total_news"];
+		that.con.query("select count(*) as 'total_words' from words",function(err1,res1)
+			{
+				if(err1 || !res1[0])
+				{
+					onFetch(null);
+					return;
+				}
+				r.total_words=res1[0]["total_words"];
+				that.con.query("select count(*) as 'total_common_words' from common_words",function(err2,res2)
+					{
+						if(err2 || !res2[0])
+							{
+								onFetch(null);
+								return;
+							}
+							r.total_common_words=res2[0]["total_common_words"];
+						onFetch(r);
+					});
+			});
+	});
+
+}
+NewsDB.prototype.exportNews=function()
+{
+	
+}
 module.exports=new NewsDB("","","","");
