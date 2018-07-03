@@ -22,6 +22,17 @@ app.get("/",function(req,res)
 res.render("showEntryDetails",rs);
 });
 });
+
+app.get("/export_news",function(req,res)
+{
+
+});
+
+app.get("/export_news/filter",function(req,res)
+{
+
+});
+
 app.listen(8084,function()
 {
 console.log("Started");
