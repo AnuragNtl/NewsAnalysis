@@ -124,6 +124,8 @@ public static void main(String[] args)
 	}
 }
 }).start();
+if(!GraphicsEnvironment.isHeadless())
+{
 	NewsWikiFlash nwf=new NewsWikiFlash();
 	def vManager=VoiceManager.getInstance();
 	def voice=vManager.getVoice("kevin");
@@ -149,6 +151,7 @@ println extra
 			}).start();
 		nwf.flash(showTime);
 	}
+}
 }
 };
 public class NewsWikiFlash
