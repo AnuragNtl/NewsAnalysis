@@ -12,7 +12,7 @@ import groovy.util.Eval;
 class SearchNews
 {
 	static def hList=[];
-	static def urlList=[],oUrlList=[];
+	static def urlList=[],oUrlList=[],extras=[];
 	static def curURL="";
 	static def nLen=0,bRead=0;
 	private static NewsDump nd=new NewsDump();
@@ -74,7 +74,14 @@ public static void main(String[] args)
 	{
 		uText->
 		def lb=hList.size();
-		k.call(uText,hList,urlList);
+		try
+		{
+		k.call(uText,hList,urlList,extras);
+		}
+		catch(Exception e)
+		{
+			k.call(uText,hList,urlList);
+		}
 		def ub=hList.size();
 		if(ub>lb)
 		oUrlList.add(it["url"]);
@@ -87,7 +94,14 @@ public static void main(String[] args)
 		def resp=Searcher.fetchJson(new URL(it["url"]));
 		def k=Eval.me("def k="+it["k"]+";\nreturn k;");
 		def lb=hList.size();
-		k.call(resp,hList,urlList);
+		try
+		{
+		k.call(resp,hList,urlList,extras);
+		}
+		catch(Exception e)
+		{
+			k.call(uText,hList,urlList);
+		}
 		def ub=hList.size();
 		for(def i=lb;i<ub;i++)
 		{
@@ -103,7 +117,10 @@ public static void main(String[] args)
 	}
 		for(def i=0;i<hList.size();i++)
 		{
-	nd.addHeadLine((String)hList.get(i),urlList.get(i),oUrlList.get(i));
+			def e=null;
+			if(extras.size()>i)
+			e=extras.get(i);
+	nd.addHeadLine((String)hList.get(i),urlList.get(i),oUrlList.get(i),tag,e);
 	}
 }
 }).start();
@@ -118,8 +135,10 @@ public static void main(String[] args)
 		continue;
 		def p=(int)(Math.random()*hList.size());
 		def txt="<a style='color:white;text-decoration:none;' href='"+urlList.get(p)+"'>"+hList.get(p)+"</a>";
+		def extra=(p<extras.size() && extras.get(p)!=null?extras.get(p):"");
 			nwf.setText("<h1>"+txt+"</h1> <span style='color:white;'>("+
-				nLen+" headlines read, "+(bRead<1024?bRead+" bytes ":bRead/1024+" KBs ")+"used)</span>");
+				nLen+" headlines read, "+(bRead<1024?bRead+" bytes ":bRead/1024+" KBs ")+"used)</span>"+"<div style='color:white'>$extra</div>");
+println extra
 		stxt=txt.replaceAll("&[^;]*;","").replaceAll("<[^<]*>","");
 		new Thread(new Runnable()
 			{
@@ -153,7 +172,7 @@ ep=new JEditorPane();
 ep.setContentType("text/html");
 ep.setBackground(Color.black);
 ep.setEditable(false);
-f.add(ep);
+f.add(new JScrollPane(ep));
 f.setVisible(false);
 ep.addHyperlinkListener(new HyperlinkListener()
 {
@@ -240,10 +259,10 @@ class NewsDump
 {
 private def dbCon=Sql.newInstance("jdbc:mysql://localhost:3306/NewsWikiFlash",
 		"root","ASharma:","com.mysql.jdbc.Driver");
-public void addHeadLine(hline,url,oUrl)
+public void addHeadLine(hline,url,oUrl,tag,extras)
 {
-	def params=[hline,url,oUrl];
-			def es="insert into nwfrec(cntt,url,orign) values(?,?,?)";
+	def params=[hline,url,oUrl,extras,tag];
+			def es="insert into nwfrec(cntt,url,orign,extras,tag) values(?,?,?,?,?)";
 			try {
 					dbCon.execute(es,params);
 						String id=getHeadLineId(hline);

@@ -13,7 +13,7 @@ NewsDB.prototype.connect=function(onConnect)
 {
 this.con.connect(onConnect);
 }
-NewsDB.prototype.fetchNews=function(date,i,srch,onFetch)
+NewsDB.prototype.fetchNews=function(date,i,srch,tag,onFetch)
 {
 	/*
 	create view freq as (select id,count(*) as freq 
@@ -25,7 +25,7 @@ NewsDB.prototype.fetchNews=function(date,i,srch,onFetch)
 	*/
 	this.con.query("select * from ranking where whn>="+(date?"'"+date+"' and whn<=date_add('"
 		+date
-		+"',interval "+i+" day)":"curdate()")+(srch?" and cntt like '%"+srch+"%'":""),
+		+"',interval "+i+" day)":"curdate()")+(srch?" and cntt like '%"+srch+"%' and tag='"+tag+"'":" and tag='"+tag+"'"),
 	function(err,res)
 		{
 			onFetch(err,res);
@@ -39,10 +39,10 @@ NewsDB.prototype.getRegisteredDates=function(onFetch)
 			onFetch(err,res);
 		});
 }
-NewsDB.prototype.getTopNWords=function(n,date,i,onFetch)
+NewsDB.prototype.getTopNWords=function(n,date,i,tag,onFetch)
 {
 	this.con.query("select word,count(*) as s from "+
-	 "words inner join nwfrec on(id=nid) and whn>="+(date?"'"+date+"' and whn<=date_add('"
+	 "words inner join nwfrec on(id=nid) and tag='"+tag+"' and whn>="+(date?"'"+date+"' and whn<=date_add('"
 		+date
 		+"',interval "+i+" day)":"curdate()")
 	  +" group by word order by s desc limit "+n+";",function(err,res)

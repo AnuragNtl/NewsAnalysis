@@ -17,15 +17,19 @@ app.use(session({secret:"NWFServer!@#%#$^%$&%^*"}));
 app.use("/",express.static("NWFServer"));
 app.set("view engine","pug");
 app.set("views","views");
+var fetchTag="daily_news";
+if(process.argv.length>1)
+	fetchTag=process.argv[2];
+console.log("Using "+fetchTag+" as tag");
 app.get("/",function(req,res)
 {
 	var date=req.query.date,srch=req.query.srch,i1=(parseInt(req.query.p)?parseInt(req.query.p):1);
-db.fetchNews(date,i1,srch,function(err,r1)
+db.fetchNews(date,i1,srch,fetchTag,function(err,r1)
 {
 	db.getRegisteredDates(function(err4,dates)
 	{
 	var groupedNews={};
-	db.getTopNWords(20,date,i1,function(err2,res2)
+	db.getTopNWords(20,date,i1,fetchTag,function(err2,res2)
 	{
 		if(err2)
 		{
@@ -78,11 +82,11 @@ else
 });
 app.get("/addTarget",function(req,res)
 {
-res.render("addTarget",{url:"",re:"",k:"{k,hList,urlList->\n}",tag:"daily_news"});
+res.render("addTarget",{url:"",re:"",k:"{\nk,hList,urlList,extras->\n}",tag:"daily_news"});
 });
 app.get("/addJSONTarget",function(req,res)
 {
-res.render("addJSONTarget",{url:"",k:"{response,hList,urlList->\n}",tag:"daily_news"});
+res.render("addJSONTarget",{url:"",k:"{\nresponse,hList,urlList,extras->\n}",tag:"daily_news"});
 });
 app.post("/addJSONTarget",function(req,res)
 {

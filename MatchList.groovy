@@ -42,20 +42,22 @@ static void main(String[] args)throws IOException
 		println(JsonOutput.toJson([error:true,message:msngpexcepn.toString()]));
 		return;
 	}
-	def txt=new URL(url).getText();
-	def hList=[],urlList=[];
+	def con=new URL(url).openConnection();
+	con.setRequestProperty("User-Agent","Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0");
+	def txt=con.getInputStream().getText();
+	def hList=[],urlList=[],extras=[];
 	if(json_source)
 	{
 		txt=new JsonSlurper().parseText(txt);
-		k.call(txt,hList,urlList);
+		k.call(txt,hList,urlList,extras);
 	}
 	else
 	{
 	txt.eachMatch(r)
 	{
-		k.call(it,hList,urlList);
+		k.call(it,hList,urlList,extras);
 	}
 	}
-	def p=["headline_list":hList,"urlList":urlList];
+	def p=["headline_list":hList,"urlList":urlList,"extras":extras];
 	println(JsonOutput.toJson(p));
 }
