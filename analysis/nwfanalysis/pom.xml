@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.clay.nwfanalysis</groupId>
+  <artifactId>nwfanalysis</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0-SNAPSHOT</version>
+  <name>nwfanalysis</name>
+  <url>http://maven.apache.org</url>
+  <properties>
+    <nd4j.version>0.9.1</nd4j.version>
+  
+    <dl4j.version>0.9.1</dl4j.version>
+    <nd4j.backend>nd4j-native-platform</nd4j.backend>
+  
+  </properties>
+  <dependencies>
+    <dependency>
+    <groupId>org.deeplearning4j</groupId>
+    <artifactId>deeplearning4j-core</artifactId>
+    <version>0.9.1</version>
+   </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+    
+      <groupId>org.deeplearning4j</groupId>
+  
+      <artifactId>deeplearning4j-nlp</artifactId>
+
+      <version>${dl4j.version}</version>
+
+        </dependency>
+        <dependency>
+        
+          <groupId>org.nd4j</groupId>
+      
+          <artifactId>${nd4j.backend}</artifactId>
+    
+          <version>${nd4j.version}</version>
+  
+</dependency>
+
+  </dependencies>
+  <build>
+    <pluginManagement>  
+      <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.0</version>
+       <configuration>
+      <source>1.8</source>
+      <target>1.8</target>
+    </configuration>
+    
+    </plugin>
+  </plugins>
+  </pluginManagement></build>
+
+</project>
