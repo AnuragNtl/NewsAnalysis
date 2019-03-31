@@ -3,7 +3,7 @@
 Also analyse and rank the news with deep learning algorithms.</h3>
 An online portal in which you can:
 <ul>
-  <li>Specify different sources (urls) from which headlines and content are fetched such as Google News</li>
+  <li>Specify different sources (urls) from which headlines and content are fetched, such as Google News</li>
   <li>Specify Regexes that filter content in the web pages</li>
   <li>Specify Groovy closures which are pieces of code (like lambdas) that scrape headlines,content, and text to speak from sources</li>
   <li>Run the Scripts that scrape data according to the information provided above, flash the news and speak tts text(in GUI environments), and feed the news in the databases.</li>
